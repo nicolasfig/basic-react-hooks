@@ -23,7 +23,24 @@ const Todo = props => {
 			})
 			.catch(error => {
 				console.log(error);
-			});
+            });
+            
+            return () => {
+                console.log('Cleanup')
+            }
+    }, []);
+
+
+    const mouseMoveHandler = event => {
+        console.log(event.clientX, event.clientY)
+    }
+
+
+    useEffect(() => {
+        document.addEventListener('mousemove', mouseMoveHandler);
+        return () => {
+            document.removeEventListener('mousedown', mouseMoveHandler);
+        }
     }, []);
 
 	const todoChangeHandler = event => {
