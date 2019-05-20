@@ -1,8 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 
 const Todo = props => {
+	const url = "https://basic-hooks.firebaseio.com/todos.json";
+	// state hooks
 	const [todo, setTodo] = useState("");
 	const [todoList, setTodoList] = useState([]);
+
+	// effect hooks
+	useEffect(() => {
+		fetch(url)
+			.then(response => {
+                return response.json()
+			})
+			.then(data => {
+                console.log(data);
+                const todos = []
+                for(let key in data){
+                    todos.push({id: key, name: data[key].todo})
+                }
+                setTodoList(todos)
+			})
+			.catch(error => {
+				console.log(error);
+			});
+    }, []);
 
 	const todoChangeHandler = event => {
 		event.preventDefault();
@@ -10,15 +32,25 @@ const Todo = props => {
 	};
 
 	const todoAddHandler = () => {
-		setTodoList(todoList.concat(todo));
+		setTodoList([...todoList, todo]);
+		fetch(url, {
+			method: "POST",
+			body: JSON.stringify({ todo: todo })
+		})
+			.then(response => {
+				console.log(response);
+			})
+			.catch(error => {
+				console.log(error);
+			});
 		setTodo("");
 	};
 
 	return (
 		<React.Fragment>
 			<ul>
-				{todoList.map((todo, index) => (
-					<li key={index}>{`${index} = ${todo}`}</li>
+				{todoList.map((todo) => (
+					<li key={todo.id}>{todo.name}</li>
 				))}
 			</ul>
 			<input
