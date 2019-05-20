@@ -31,7 +31,7 @@ const Todo = props => {
     }, []);
 
 
-    const mouseMoveHandler = event => {
+    /* const mouseMoveHandler = event => {
         console.log(event.clientX, event.clientY)
     }
 
@@ -41,7 +41,7 @@ const Todo = props => {
         return () => {
             document.removeEventListener('mousedown', mouseMoveHandler);
         }
-    }, []);
+    }, []); */
 
 	const todoChangeHandler = event => {
 		event.preventDefault();
