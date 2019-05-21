@@ -9,8 +9,7 @@ const Header = props => {
 		<header>
             {auth.status ? <button onClick={props.onLoadTodos}>Todo List</button> : null }	
             <button onClick={props.onLoadAuth}>Auth</button>
-			
-		</header>
+		</header>	
 	);
 };
 

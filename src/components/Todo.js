@@ -1,47 +1,49 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useReducer } from "react";
+import axios from "axios";
 
 const Todo = props => {
 	const url = "https://basic-hooks.firebaseio.com/todos.json";
 	// state hooks
 	const [todo, setTodo] = useState("");
-	const [todoList, setTodoList] = useState([]);
+	//const [todoList, setTodoList] = useState([]);
 
-	// effect hooks
+	const todoListReducer = (state, action) => {
+		switch (action.type) {
+			case "ADD":
+				return state.concat(action.payload);
+			case "SET":
+				return action.payload;
+			case "DELETE":
+				return state.filter(todo => todo.id !== action.payload);
+			default:
+				return state;
+		}
+	};
+
+	const [todoList, dispatch] = useReducer(todoListReducer, []); 
+
+
+	// effect hooks get
 	useEffect(() => {
-		fetch(url)
+		axios
+			.get(url)
 			.then(response => {
-                return response.json()
-			})
-			.then(data => {
-                console.log(data);
-                const todos = []
-                for(let key in data){
-                    todos.push({id: key, name: data[key].todo})
-                }
-                setTodoList(todos)
+				console.log(response.data);
+				const todoData = response.data;
+				const todos = [];
+				for (const key in todoData) {
+					todos.push({ id: key, name: todoData[key].name });
+				}
+				dispatch({type: 'SET', payload: todos})
 			})
 			.catch(error => {
 				console.log(error);
-            });
-            
-            return () => {
-                console.log('Cleanup')
-            }
-    }, []);
+			});
+		return () => {
+			console.log("Cleanup");
+		};
+	}, []);
 
-
-    /* const mouseMoveHandler = event => {
-        console.log(event.clientX, event.clientY)
-    }
-
-
-    useEffect(() => {
-        document.addEventListener('mousemove', mouseMoveHandler);
-        return () => {
-            document.removeEventListener('mousedown', mouseMoveHandler);
-        }
-    }, []); */
 
 	const todoChangeHandler = event => {
 		event.preventDefault();
@@ -49,13 +51,11 @@ const Todo = props => {
 	};
 
 	const todoAddHandler = () => {
-		setTodoList([...todoList, todo]);
-		fetch(url, {
-			method: "POST",
-			body: JSON.stringify({ todo: todo })
-		})
+		axios
+			.post(url, { name: todo })
 			.then(response => {
-				console.log(response);
+				const todoItem = { id: response.data.name, name: todo };
+				dispatch({type: 'ADD', payload: todoItem})
 			})
 			.catch(error => {
 				console.log(error);
@@ -66,7 +66,7 @@ const Todo = props => {
 	return (
 		<React.Fragment>
 			<ul>
-				{todoList.map((todo) => (
+				{todoList.map(todo => (
 					<li key={todo.id}>{todo.name}</li>
 				))}
 			</ul>
