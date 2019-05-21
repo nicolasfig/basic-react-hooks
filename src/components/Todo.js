@@ -2,7 +2,7 @@ import React, { useState, useEffect, useReducer } from "react";
 import axios from "axios";
 
 const Todo = props => {
-	const url = "https://basic-hooks.firebaseio.com/todos.json";
+	const url = "https://basic-hooks.firebaseio.com/todos";
 	// state hooks
 	const [todo, setTodo] = useState("");
 	//const [todoList, setTodoList] = useState([]);
@@ -20,13 +20,12 @@ const Todo = props => {
 		}
 	};
 
-	const [todoList, dispatch] = useReducer(todoListReducer, []); 
-
+	const [todoList, dispatch] = useReducer(todoListReducer, []);
 
 	// effect hooks get
 	useEffect(() => {
 		axios
-			.get(url)
+			.get(`${url}.json`)
 			.then(response => {
 				console.log(response.data);
 				const todoData = response.data;
@@ -34,7 +33,7 @@ const Todo = props => {
 				for (const key in todoData) {
 					todos.push({ id: key, name: todoData[key].name });
 				}
-				dispatch({type: 'SET', payload: todos})
+				dispatch({ type: "SET", payload: todos });
 			})
 			.catch(error => {
 				console.log(error);
@@ -44,7 +43,6 @@ const Todo = props => {
 		};
 	}, []);
 
-
 	const todoChangeHandler = event => {
 		event.preventDefault();
 		setTodo(event.target.value);
@@ -52,10 +50,10 @@ const Todo = props => {
 
 	const todoAddHandler = () => {
 		axios
-			.post(url, { name: todo })
+			.post(`${url}.json`, { name: todo })
 			.then(response => {
 				const todoItem = { id: response.data.name, name: todo };
-				dispatch({type: 'ADD', payload: todoItem})
+				dispatch({ type: "ADD", payload: todoItem });
 			})
 			.catch(error => {
 				console.log(error);
@@ -63,11 +61,27 @@ const Todo = props => {
 		setTodo("");
 	};
 
+	const deleteHandler = todoId => {
+		axios
+			.delete(`${url}/${todoId}.json`)
+			.then(response => {
+				dispatch({ type: "DELETE", payload: todoId });
+			})
+			.catch(error => {
+				console.log(error);
+			});
+	};
+
 	return (
 		<React.Fragment>
 			<ul>
 				{todoList.map(todo => (
-					<li key={todo.id}>{todo.name}</li>
+					<li
+						key={todo.id}
+						onClick={deleteHandler.bind(this, todo.id)}
+					>
+						{todo.name}
+					</li>
 				))}
 			</ul>
 			<input
