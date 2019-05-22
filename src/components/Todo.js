@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, {useEffect, useReducer, useRef } from "react";
 import axios from "axios";
 
 const Todo = props => {
 	const url = "https://basic-hooks.firebaseio.com/todos";
 	// state hooks
-	const [todo, setTodo] = useState("");
+	//const [todo, setTodo] = useState("");
 	//const [todoList, setTodoList] = useState([]);
 
 	const todoListReducer = (state, action) => {
@@ -21,6 +21,7 @@ const Todo = props => {
 	};
 
 	const [todoList, dispatch] = useReducer(todoListReducer, []);
+	const todoInputRef = useRef();
 
 	// effect hooks get
 	useEffect(() => {
@@ -43,12 +44,15 @@ const Todo = props => {
 		};
 	}, []);
 
-	const todoChangeHandler = event => {
+	/* const todoChangeHandler = event => {
 		event.preventDefault();
 		setTodo(event.target.value);
-	};
+	}; */
 
 	const todoAddHandler = () => {
+
+		const todo = todoInputRef.current.value;
+
 		axios
 			.post(`${url}.json`, { name: todo })
 			.then(response => {
@@ -58,7 +62,7 @@ const Todo = props => {
 			.catch(error => {
 				console.log(error);
 			});
-		setTodo("");
+		//setTodo("");
 	};
 
 	const deleteHandler = todoId => {
@@ -87,8 +91,7 @@ const Todo = props => {
 			<input
 				type="text"
 				placeholder="Todo"
-				onChange={todoChangeHandler}
-				value={todo}
+				ref={todoInputRef}
 			/>
 			<button onClick={todoAddHandler}>Add</button>
 		</React.Fragment>
