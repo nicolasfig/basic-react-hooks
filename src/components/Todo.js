@@ -1,9 +1,12 @@
-import React, {useEffect, useReducer, useRef } from "react";
+import React, { useState, useEffect, useReducer, useRef, useMemo } from "react";
 import axios from "axios";
+
+import List from "./List";
 
 const Todo = props => {
 	const url = "https://basic-hooks.firebaseio.com/todos";
 	// state hooks
+	const [inputIsValid, setInput] = useState(false);
 	//const [todo, setTodo] = useState("");
 	//const [todoList, setTodoList] = useState([]);
 
@@ -50,7 +53,6 @@ const Todo = props => {
 	}; */
 
 	const todoAddHandler = () => {
-
 		const todo = todoInputRef.current.value;
 
 		axios
@@ -76,22 +78,27 @@ const Todo = props => {
 			});
 	};
 
+	const validationHandler = event => {
+		if (event.target.value.trim() === "") {
+			setInput(false);
+		} else {
+			setInput(true);
+		}
+	};
+
 	return (
 		<React.Fragment>
 			<ul>
-				{todoList.map(todo => (
-					<li
-						key={todo.id}
-						onClick={deleteHandler.bind(this, todo.id)}
-					>
-						{todo.name}
-					</li>
-				))}
+				{useMemo(() => <List items={todoList} onClick={deleteHandler} />, [todoList])}
 			</ul>
 			<input
 				type="text"
 				placeholder="Todo"
 				ref={todoInputRef}
+				onChange={validationHandler}
+				style={{
+					backgroundColor: inputIsValid ? "transparent" : "red"
+				}}
 			/>
 			<button onClick={todoAddHandler}>Add</button>
 		</React.Fragment>
